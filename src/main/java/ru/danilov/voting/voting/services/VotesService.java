@@ -30,7 +30,11 @@ public class VotesService {
 
     public Optional<Vote> findAllTodayVotesWhereId(Person person) {
         LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0,0));
-
         return votesRepository.findFirstByDateTimeAfterAndPerson(localDateTime, person);
+    }
+
+    @Transactional
+    public Vote save(Vote vote) {
+        return votesRepository.save(vote);
     }
 }

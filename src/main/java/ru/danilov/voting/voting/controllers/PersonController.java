@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/main")
-public class MainController {
+@RequestMapping("/people")
+public class PersonController {
 
     private final PeopleService peopleService;
     private final VotesService votesService;
@@ -31,7 +31,7 @@ public class MainController {
     private final RestaurantsService restaurantsService;
 
     @Autowired
-    public MainController(PeopleService peopleService, VotesService votesService, DishesService dishesService, LunchMenuItemsService lunchMenuItemsService, LunchMenusService lunchMenusService, RestaurantsService restaurantsService) {
+    public PersonController(PeopleService peopleService, VotesService votesService, DishesService dishesService, LunchMenuItemsService lunchMenuItemsService, LunchMenusService lunchMenusService, RestaurantsService restaurantsService) {
         this.peopleService = peopleService;
         this.votesService = votesService;
         this.dishesService = dishesService;
@@ -40,23 +40,30 @@ public class MainController {
         this.restaurantsService = restaurantsService;
     }
 
-    @PutMapping("/people/{personId}/votes/{restaurantId}")
+    @PutMapping("/{personId}/votes/{restaurantId}")
     public void vote(@PathVariable("personId") int personId, @PathVariable("restaurantId") int restaurantId) {
         Vote vote = VoteUtil.setVote(peopleService.findById(personId), restaurantsService.findById(restaurantId));
         if (vote != null) {
             Optional<Vote> checkVote = votesService.findAllTodayVotesWhereId(vote.getPerson());
 
             if (checkVote.isPresent()) {
-                if (VoteUtil.checkTimeVote(vote, checkVote.get())) {
-                    System.out.println("голос уже есть и новый после 11:00 (ничего не создаем)");
-                } else {
-                    System.out.println("голос уже есть и новый до 11:00 (меняем старый голос)");
+                if (!VoteUtil.checkTimeVote(vote, checkVote.get())) {
+                    Vote resultVote = checkVote.get();
+                    resultVote.setRestaurant(vote.getRestaurant());
+                    resultVote.setDateTime(vote.getDateTime());
+
+                    votesService.save(resultVote);
                 }
             } else {
-                System.out.println("голоса нет и создаем новый");
+                votesService.save(vote);
             }
+        } else {
+            //admin vote or not enough data
         }
     }
+
+
+
 
     @GetMapping("/people")
     public List<Person> getFirst() {

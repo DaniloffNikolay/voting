@@ -15,14 +15,14 @@ import java.util.Optional;
 public class VoteUtil {
 
     public static Vote setVote(Optional<Person> person, Optional<Restaurant> restaurant) {
-        if (person.isPresent() && restaurant.isPresent()) {
+        if (person.isPresent() && person.get().getRole().equals("guest") && restaurant.isPresent()) {
             return new Vote(LocalDateTime.now(), person.get(), restaurant.get());
         }
         return null;
     }
 
     public static boolean checkTimeVote(Vote vote, Vote checkVote) {
-        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(11, 0,0));
+        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0,0));
         if (vote.getDateTime().isAfter(localDateTime)) {
             return true;
         }
