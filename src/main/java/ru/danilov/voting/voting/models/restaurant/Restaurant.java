@@ -12,6 +12,42 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "name")
+    private String name;
+
     @OneToMany(mappedBy = "restaurant")
     private List<LunchMenu> lunchMenus;
+
+    public Restaurant() {
+    }
+
+    public Restaurant(int id, String name, List<LunchMenu> lunchMenus) {
+        this.id = id;
+        this.name = name;
+        this.lunchMenus = lunchMenus;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<LunchMenu> getLunchMenus() {
+        return lunchMenus;
+    }
+
+    public void setLunchMenus(List<LunchMenu> lunchMenus) {
+        this.lunchMenus = lunchMenus;
+    }
 }

@@ -24,4 +24,46 @@ public class Vote {
     @OneToOne
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
+
+    public Vote() {
+    }
+
+    public Vote(int id, LocalDateTime dateTime, Person person, Restaurant restaurant) {
+        this.id = id;
+        this.dateTime = dateTime;
+        this.person = person;
+        this.restaurant = restaurant;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+    }
 }
