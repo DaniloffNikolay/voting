@@ -1,9 +1,7 @@
 package ru.danilov.voting.voting.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.Dish;
@@ -16,8 +14,10 @@ import ru.danilov.voting.voting.services.restaurant.DishesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenuItemsService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
+import ru.danilov.voting.voting.util.VoteUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/main")
@@ -38,6 +38,24 @@ public class MainController {
         this.lunchMenuItemsService = lunchMenuItemsService;
         this.lunchMenusService = lunchMenusService;
         this.restaurantsService = restaurantsService;
+    }
+
+    @PutMapping("/people/{personId}/votes/{restaurantId}")
+    public void vote(@PathVariable("personId") int personId, @PathVariable("restaurantId") int restaurantId) {
+        Vote vote = VoteUtil.setVote(peopleService.findById(personId), restaurantsService.findById(restaurantId));
+        if (vote != null) {
+            Optional<Vote> checkVote = votesService.findAllTodayVotesWhereId(vote.getPerson());
+
+            if (checkVote.isPresent()) {
+                if (VoteUtil.checkTimeVote(vote, checkVote.get())) {
+                    System.out.println("голос уже есть и новый после 11:00 (ничего не создаем)");
+                } else {
+                    System.out.println("голос уже есть и новый до 11:00 (меняем старый голос)");
+                }
+            } else {
+                System.out.println("голоса нет и создаем новый");
+            }
+        }
     }
 
     @GetMapping("/people")

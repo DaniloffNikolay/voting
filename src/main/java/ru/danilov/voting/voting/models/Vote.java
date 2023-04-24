@@ -28,6 +28,12 @@ public class Vote {
     public Vote() {
     }
 
+    public Vote(LocalDateTime dateTime, Person person, Restaurant restaurant) {
+        this.dateTime = dateTime;
+        this.person = person;
+        this.restaurant = restaurant;
+    }
+
     public Vote(int id, LocalDateTime dateTime, Person person, Restaurant restaurant) {
         this.id = id;
         this.dateTime = dateTime;

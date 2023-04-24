@@ -8,6 +8,7 @@ import ru.danilov.voting.voting.models.restaurant.Restaurant;
 import ru.danilov.voting.voting.repositories.restaurant.RestaurantsRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,5 +23,9 @@ public class RestaurantsService {
 
     public List<Restaurant> findAll() {
         return restaurantsRepository.findAll();
+    }
+
+    public Optional<Restaurant> findById(int id) {
+        return restaurantsRepository.findById(id);
     }
 }

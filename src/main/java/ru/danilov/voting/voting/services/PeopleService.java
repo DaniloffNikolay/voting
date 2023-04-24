@@ -7,6 +7,7 @@ import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.repositories.PeopleRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,5 +22,9 @@ public class PeopleService {
 
     public List<Person> findAll() {
         return peopleRepository.findAll();
+    }
+
+    public Optional<Person> findById(int id) {
+        return peopleRepository.findById(id);
     }
 }
