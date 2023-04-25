@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.danilov.voting.voting.models.Person;
+import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
 import ru.danilov.voting.voting.repositories.restaurant.RestaurantsRepository;
 
@@ -27,5 +28,10 @@ public class RestaurantsService {
 
     public Optional<Restaurant> findById(int id) {
         return restaurantsRepository.findById(id);
+    }
+
+    @Transactional
+    public Restaurant save(Restaurant restaurant) {
+        return restaurantsRepository.save(restaurant);
     }
 }
