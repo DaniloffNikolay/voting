@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.danilov.voting.voting.models.restaurant.Dish;
+import ru.danilov.voting.voting.models.restaurant.LunchMenu;
 import ru.danilov.voting.voting.repositories.restaurant.DishesRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,5 +23,14 @@ public class DishesService {
 
     public List<Dish> findAll() {
         return dishesRepository.findAll();
+    }
+
+    public Optional<Dish> findById(int id) {
+        return dishesRepository.findById(id);
+    }
+
+    @Transactional
+    public Dish save(Dish dish) {
+        return dishesRepository.save(dish);
     }
 }
