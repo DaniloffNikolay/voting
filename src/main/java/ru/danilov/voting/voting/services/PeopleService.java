@@ -27,4 +27,19 @@ public class PeopleService {
     public Optional<Person> findById(int id) {
         return peopleRepository.findById(id);
     }
+
+    @Transactional
+    public Person save(Person person) {
+        return peopleRepository.save(person);
+    }
+
+    @Transactional
+    public void delete(Person person) {
+        peopleRepository.delete(person);
+    }
+
+    @Transactional
+    public void deleteAll() {
+        peopleRepository.deleteAll();
+    }
 }

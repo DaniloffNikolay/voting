@@ -2,6 +2,8 @@ package ru.danilov.voting.voting.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ru.danilov.voting.voting.VotingApplication;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
@@ -32,7 +34,7 @@ public class VoteUtil {
         return false;
     }
 
-    public static void checkVote(Optional<Person> person, Optional<Restaurant> restaurant, VotesService votesService) {
+    public static ResponseEntity<HttpStatus> checkVote(Optional<Person> person, Optional<Restaurant> restaurant, VotesService votesService) {
         Vote vote = VoteUtil.setVote(person, restaurant);
         if (vote != null) {
             Optional<Vote> checkVote = votesService.findAllTodayVotesWhereId(vote.getPerson());
@@ -45,15 +47,20 @@ public class VoteUtil {
                     resultVote.setDateTime(vote.getDateTime());
 
                     votesService.save(resultVote);
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).build();
                 } else {
                     log.info("vote has already been counted");
+                    return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).build();
                 }
             } else {
                 log.info("voice is being recorded");
                 votesService.save(vote);
+                return ResponseEntity.status(HttpStatus.CREATED).build();
             }
         } else {
             log.info("admin vote or not enough data");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
     }
 }

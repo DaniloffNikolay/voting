@@ -1,5 +1,6 @@
 package ru.danilov.voting.voting.models.restaurant;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class Restaurant {
     @Column(name = "name")
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "restaurant")
     private List<LunchMenu> lunchMenus;
 

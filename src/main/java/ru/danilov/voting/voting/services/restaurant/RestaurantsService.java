@@ -34,4 +34,9 @@ public class RestaurantsService {
     public Restaurant save(Restaurant restaurant) {
         return restaurantsRepository.save(restaurant);
     }
+
+    @Transactional
+    public void deleteAll() {
+        restaurantsRepository.deleteAll();
+    }
 }

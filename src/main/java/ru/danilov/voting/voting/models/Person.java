@@ -48,4 +48,13 @@ public class Person {
     public void setRole(String role) {
         this.role = role;
     }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
 }

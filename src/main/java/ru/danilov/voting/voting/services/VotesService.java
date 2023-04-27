@@ -37,4 +37,9 @@ public class VotesService {
     public Vote save(Vote vote) {
         return votesRepository.save(vote);
     }
+
+    @Transactional
+    public void deleteAll() {
+        votesRepository.deleteAll();
+    }
 }
