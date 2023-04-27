@@ -17,6 +17,7 @@ import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
 
 import java.time.LocalTime;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -127,9 +128,28 @@ public class PersonControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    public void getAllRestaurantsThenStatus200andRestaurantConform() throws Exception {
+        restaurantsService.save(createTestRestaurant());
+
+        mockMvc.perform(get("/people/restaurants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].name").value("Star"));
+    }
+
+    @Test
+    public void getAllLunchMenusFromRestaurantThenStatus200andRestaurantConform() throws Exception {
+        restaurantsService.save(createTestRestaurant());
+
+        mockMvc.perform(get("/people/restaurants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].name").value("Star"));
+    }
+
     private Vote createTestVote(Person person) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName("Star");
+        Restaurant restaurant = createTestRestaurant();
         Restaurant restaurantWithId = restaurantsService.save(restaurant);
         Vote vote = new Vote();
         vote.setPerson(person);
@@ -150,5 +170,11 @@ public class PersonControllerTest {
         person.setName("Senior tester");
         person.setRole("admin");
         return person;
+    }
+
+    private Restaurant createTestRestaurant() {
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName("Star");
+        return restaurant;
     }
 }

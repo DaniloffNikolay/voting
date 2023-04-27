@@ -19,10 +19,10 @@ public class LunchMenu {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
-    @JsonIgnore
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "lunchMenu")
+    @JsonIgnore
     private List<LunchMenuItem> lunchMenuItems;
 
     public LunchMenu() {

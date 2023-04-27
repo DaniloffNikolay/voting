@@ -19,7 +19,6 @@ public class LunchMenuItem {
 
     @ManyToOne
     @JoinColumn(name = "lunch_menu_id")
-    @JsonIgnore
     private LunchMenu lunchMenu;
 
     public LunchMenuItem() {

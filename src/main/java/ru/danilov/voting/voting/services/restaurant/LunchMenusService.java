@@ -9,6 +9,7 @@ import ru.danilov.voting.voting.models.restaurant.Restaurant;
 import ru.danilov.voting.voting.repositories.restaurant.DishesRepository;
 import ru.danilov.voting.voting.repositories.restaurant.LunchMenusRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,10 @@ public class LunchMenusService {
 
     public List<LunchMenu> findAll() {
         return lunchMenusRepository.findAll();
+    }
+
+    public LunchMenu findTodayLunchMenu(Restaurant restaurant) {
+        return lunchMenusRepository.findAllByRestaurantAndDateAfter(restaurant, LocalDate.now().minusDays(1)).orElse(null);
     }
 
     public Optional<LunchMenu> findById(int id) {

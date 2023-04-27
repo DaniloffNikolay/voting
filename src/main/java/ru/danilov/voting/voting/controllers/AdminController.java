@@ -3,9 +3,12 @@ package ru.danilov.voting.voting.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.VotingApplication;
+import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.restaurant.Dish;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
 import ru.danilov.voting.voting.models.restaurant.LunchMenuItem;
@@ -38,7 +41,7 @@ public class AdminController {
     }
 
     @PostMapping("/dish")
-    public Dish setDish(@RequestBody Dish dish, BindingResult bindingResult) {
+    public ResponseEntity<Dish> setDish(@RequestBody Dish dish, BindingResult bindingResult) {
         log.info("POST: /admin/dish");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -46,67 +49,69 @@ public class AdminController {
 
         //TODO check all dishes for a match
 
-        return dishesService.save(dish);
+        Dish responseDish = dishesService.save(dish);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDish);
     }
 
     @GetMapping("/dish/{id}")
-    public Dish getDish(@PathVariable("id") int id) {
+    public ResponseEntity<Dish> getDish(@PathVariable("id") int id) {
         log.info("GET: /admin/dish/" + id);
-        return dishesService.findById(id).orElse(null);
+        Dish dish = dishesService.findById(id).orElse(null);
+        return ResponseEntity.status(HttpStatus.OK).body(dish);
     }
 
     @PostMapping("/restaurant")
-    public Restaurant setRestaurant(@RequestBody Restaurant restaurant, BindingResult bindingResult) {
+    public ResponseEntity<Restaurant> setRestaurant(@RequestBody Restaurant restaurant, BindingResult bindingResult) {
         log.info("POST: /admin/restaurant/");
         if (bindingResult.hasErrors()) {
             //TODO
         }
 
-        return restaurantsService.save(restaurant);
+        Restaurant responseRestaurant = restaurantsService.save(restaurant);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseRestaurant);
     }
 
     @GetMapping("/restaurant/{id}")
-    public Restaurant getRestaurant(@PathVariable("id") int id) {
+    public ResponseEntity<Restaurant> getRestaurant(@PathVariable("id") int id) {
         log.info("GET: /admin/restaurant/" + id);
-        return restaurantsService.findById(id).orElse(null);
+        Restaurant responseRestaurant = restaurantsService.findById(id).orElse(null);
+        return ResponseEntity.status(HttpStatus.OK).body(responseRestaurant);
     }
 
-    @PostMapping("/restaurant/{id}/lunch_menu")
-    public LunchMenu setLunchMenu(@PathVariable("id") int id, @RequestBody LunchMenu lunchMenu, BindingResult bindingResult) {
-        log.info("POST: /admin/restaurant/" + id + "/lunch_menu");
+    @PostMapping("/lunch_menu")
+    public ResponseEntity<LunchMenu> setLunchMenu(@RequestBody LunchMenu lunchMenu, BindingResult bindingResult) {
+        log.info("POST: /admin/lunch_menu");
         if (bindingResult.hasErrors()) {
             //TODO
         }
 
-        lunchMenu.setRestaurant(restaurantsService.findById(id).orElse(null));
-
-        return lunchMenusService.save(lunchMenu);
+        LunchMenu responseLunchMenu = lunchMenusService.save(lunchMenu);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseLunchMenu);
     }
 
-    @GetMapping("/restaurant/{restaurantId}/lunch_menu/{lunchMenuId}")
-    public LunchMenu getLunchMenu(@PathVariable("restaurantId") int restaurantId, @PathVariable("lunchMenuId") int lunchMenuId) {
-        log.info("GET: /admin/restaurant/" + restaurantId + "/lunch_menu/" + lunchMenuId);
-        return lunchMenusService.findById(lunchMenuId).orElse(null);
+    @GetMapping("/lunch_menu/{id}")
+    public ResponseEntity<LunchMenu> getLunchMenu(@PathVariable("id") int id) {
+        log.info("GET: /admin/lunch_menu/" + id);
+        LunchMenu responseLunchMenu = lunchMenusService.findById(id).orElse(null);
+        return ResponseEntity.status(HttpStatus.OK).body(responseLunchMenu);
     }
 
-    @PostMapping("/restaurant/{restaurantId}/lunch_menu/{lunchMenuId}/lunch_menu_item")
-    public LunchMenuItem setLunchMenuItem(@PathVariable("restaurantId") int restaurantId,
-                                          @PathVariable("lunchMenuId") int lunchMenuId,
-                                          @RequestBody LunchMenuItem lunchMenuItem,
+    @PostMapping("/lunch_menu_item")
+    public ResponseEntity<LunchMenuItem> setLunchMenuItem(@RequestBody LunchMenuItem lunchMenuItem,
                                           BindingResult bindingResult) {
-        log.info("POST: /admin/restaurant/" + restaurantId + "/lunch_menu/" + lunchMenuId + "/lunch_menu_item");
+        log.info("POST: /admin/lunch_menu_item");
         if (bindingResult.hasErrors()) {
             //TODO
         }
 
-        return null;
+        LunchMenuItem responseLunchMenuItem = lunchMenuItemsService.save(lunchMenuItem);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseLunchMenuItem);
     }
 
-    @GetMapping("/restaurant/{restaurantId}/lunch_menu/{lunchMenuId}/lunch_menu_item/{lunchMenuItemId}")
-    public LunchMenuItem getLunchMenuItem(@PathVariable("restaurantId") int restaurantId,
-                                  @PathVariable("lunchMenuId") int lunchMenuId,
-                                  @PathVariable("lunchMenuItemId") int lunchMenuItemId) {
-        log.info("POST: /admin/restaurant/" + restaurantId + "/lunch_menu/" + lunchMenuId + "/lunch_menu_item/" + lunchMenuItemId);
-        return lunchMenuItemsService.findById(lunchMenuItemId).orElse(null);
+    @GetMapping("/lunch_menu_item/{id}")
+    public ResponseEntity<LunchMenuItem> getLunchMenuItem(@PathVariable("id") int id) {
+        log.info("POST: /admin/lunch_menu_item/" + id);
+        LunchMenuItem responseLunchMenuItem = lunchMenuItemsService.findById(id).orElse(null);
+        return ResponseEntity.status(HttpStatus.OK).body(responseLunchMenuItem);
     }
 }
