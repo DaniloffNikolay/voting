@@ -1,6 +1,7 @@
 package ru.danilov.voting.voting.models.restaurant;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Dish")
@@ -11,6 +12,7 @@ public class Dish {
     private int id;
 
     @Column(name = "name")
+    @NotNull
     private String name;
 
     public Dish(int id, String name) {

@@ -25,6 +25,10 @@ public class DishesService {
         return dishesRepository.findAll();
     }
 
+    public Optional<Dish> findFirstByNameIs(Dish dish) {
+        return dishesRepository.findFirstByNameIs(dish.getName());
+    }
+
     public Optional<Dish> findById(int id) {
         return dishesRepository.findById(id);
     }
@@ -32,5 +36,10 @@ public class DishesService {
     @Transactional
     public Dish save(Dish dish) {
         return dishesRepository.save(dish);
+    }
+
+    @Transactional
+    public void deleteAll() {
+        dishesRepository.deleteAll();
     }
 }

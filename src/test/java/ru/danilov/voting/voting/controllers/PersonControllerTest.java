@@ -11,14 +11,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
-import ru.danilov.voting.voting.models.restaurant.LunchMenuItem;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
 import ru.danilov.voting.voting.services.PeopleService;
 import ru.danilov.voting.voting.services.VotesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -28,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.danilov.voting.voting.controllers.Util.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -102,9 +101,7 @@ public class PersonControllerTest {
         Person person = peopleService.save(createTestGuestPerson());
 
 
-        mockMvc.perform(get("/people/" + person.getId())
-                        .content(objectMapper.writeValueAsString(person))
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/people/" + person.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value("Tester"))
@@ -176,7 +173,7 @@ public class PersonControllerTest {
 
     @Test
     public void getLunchMenusTodayThenStatus200AndLunchMenusConform() throws Exception {
-        Restaurant restaurantOne = restaurantsService.save(createTestRestaurantWithName("Star"));
+        Restaurant restaurantOne = restaurantsService.save(createTestRestaurant());
         Restaurant restaurantTwo = restaurantsService.save(createTestRestaurantWithName("Moon"));
         lunchMenusService.save(createTestLunchMenu(restaurantOne));
         lunchMenusService.save(createTestLunchMenu(restaurantTwo));
@@ -196,40 +193,5 @@ public class PersonControllerTest {
         vote.setRestaurant(restaurantWithId);
 
         return vote;
-    }
-
-    private Person createTestGuestPerson() {
-        Person person = new Person();
-        person.setName("Tester");
-        person.setRole("guest");
-
-        return person;
-    }
-
-    private Person createTestAdminPerson() {
-        Person person = new Person();
-        person.setName("Senior tester");
-        person.setRole("admin");
-
-        return person;
-    }
-
-    private Restaurant createTestRestaurant() {
-        return createTestRestaurantWithName("Star");
-    }
-
-    private Restaurant createTestRestaurantWithName(String name) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName(name);
-
-        return restaurant;
-    }
-
-    private LunchMenu createTestLunchMenu(Restaurant restaurant) {
-        LunchMenu lunchMenu = new LunchMenu();
-        lunchMenu.setRestaurant(restaurant);
-        lunchMenu.setDate(LocalDate.now());
-
-        return lunchMenu;
     }
 }

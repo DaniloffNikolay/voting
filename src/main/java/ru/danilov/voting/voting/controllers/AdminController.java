@@ -1,23 +1,26 @@
 package ru.danilov.voting.voting.controllers;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.VotingApplication;
-import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.restaurant.Dish;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
 import ru.danilov.voting.voting.models.restaurant.LunchMenuItem;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
-import ru.danilov.voting.voting.services.PeopleService;
 import ru.danilov.voting.voting.services.restaurant.DishesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenuItemsService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
+import ru.danilov.voting.voting.util.DishValidator;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
@@ -25,32 +28,40 @@ public class AdminController {
 
     private static final Logger log = LoggerFactory.getLogger(VotingApplication.class);
 
-    private final PeopleService peopleService;
     private final DishesService dishesService;
     private final LunchMenuItemsService lunchMenuItemsService;
     private final LunchMenusService lunchMenusService;
     private final RestaurantsService restaurantsService;
 
+    private final DishValidator dishValidator;
+
     @Autowired
-    public AdminController(PeopleService peopleService, DishesService dishesService,
-                           LunchMenuItemsService lunchMenuItemsService, LunchMenusService lunchMenusService,
-                           RestaurantsService restaurantsService) {
-        this.peopleService = peopleService;
+    public AdminController(DishesService dishesService, LunchMenuItemsService lunchMenuItemsService,
+                           LunchMenusService lunchMenusService, RestaurantsService restaurantsService, DishValidator dishValidator) {
         this.dishesService = dishesService;
         this.lunchMenuItemsService = lunchMenuItemsService;
         this.lunchMenusService = lunchMenusService;
         this.restaurantsService = restaurantsService;
+        this.dishValidator = dishValidator;
     }
 
     @PostMapping("/dish")
-    public ResponseEntity<Dish> setDish(@RequestBody Dish dish,
+    public ResponseEntity<Dish> setDish(@RequestBody @Valid Dish dish,
                                         BindingResult bindingResult) {
         log.info("POST: /admin/dish");
-        if (bindingResult.hasErrors()) {
-            //TODO
-        }
 
-        //TODO check all dishes for a match
+        dishValidator.validate(dish, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+
+            if (fieldErrors.size() == 1 && bindingResult.hasFieldErrors("name")) {
+                log.info("Dish who has this name is already taken, return ");
+                return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(dishesService.findFirstByNameIs(dish).orElse(null));
+            } else {
+                //TODO
+            }
+        }
 
         Dish responseDish = dishesService.save(dish);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDish);
@@ -61,6 +72,13 @@ public class AdminController {
         log.info("GET: /admin/dish/" + id);
         Dish dish = dishesService.findById(id).orElse(null);
         return ResponseEntity.status(HttpStatus.OK).body(dish);
+    }
+
+    @GetMapping("/dishes")
+    public ResponseEntity<List<Dish>> getAllDishes() {
+        log.info("GET: /admin/dishes");
+        List<Dish> dishes = dishesService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(dishes);
     }
 
     @PostMapping("/restaurant")
@@ -80,6 +98,13 @@ public class AdminController {
         log.info("GET: /admin/restaurant/" + id);
         Restaurant responseRestaurant = restaurantsService.findById(id).orElse(null);
         return ResponseEntity.status(HttpStatus.OK).body(responseRestaurant);
+    }
+
+    @GetMapping("/restaurants")
+    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
+        log.info("GET: /admin/restaurants");
+        List<Restaurant> restaurants = restaurantsService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(restaurants);
     }
 
     @PostMapping("/lunch_menu")

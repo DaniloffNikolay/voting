@@ -30,4 +30,9 @@ public class LunchMenuItemsService {
     public LunchMenuItem save(LunchMenuItem lunchMenuItem) {
         return lunchMenuItemsRepository.save(lunchMenuItem);
     }
+
+    @Transactional
+    public void deleteAll() {
+        lunchMenuItemsRepository.deleteAll();
+    }
 }
