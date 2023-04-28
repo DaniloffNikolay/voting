@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface LunchMenusRepository extends JpaRepository<LunchMenu, Integer> {
 
     Optional<LunchMenu> findAllByRestaurantAndDateAfter(Restaurant restaurant, LocalDate date);
+
+    List<LunchMenu> findAllByDateAfter(LocalDate date);
 }

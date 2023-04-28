@@ -10,11 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
+import ru.danilov.voting.voting.models.restaurant.LunchMenu;
+import ru.danilov.voting.voting.models.restaurant.LunchMenuItem;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
 import ru.danilov.voting.voting.services.PeopleService;
 import ru.danilov.voting.voting.services.VotesService;
+import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -28,24 +32,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PersonControllerTest {
-    private ObjectMapper objectMapper;
-    private PeopleService peopleService;
-    private RestaurantsService restaurantsService;
-    private VotesService votesService;
-    private MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final PeopleService peopleService;
+    private final RestaurantsService restaurantsService;
+    private final LunchMenusService lunchMenusService;
+    private final VotesService votesService;
+    private final MockMvc mockMvc;
 
     @Autowired
     public PersonControllerTest(ObjectMapper objectMapper, PeopleService peopleService,
-                                RestaurantsService restaurantsService, VotesService votesService, MockMvc mockMvc) {
+                                RestaurantsService restaurantsService, LunchMenusService lunchMenusService, VotesService votesService, MockMvc mockMvc) {
         this.objectMapper = objectMapper;
         this.peopleService = peopleService;
         this.restaurantsService = restaurantsService;
+        this.lunchMenusService = lunchMenusService;
         this.votesService = votesService;
         this.mockMvc = mockMvc;
     }
 
     @AfterEach
     public void resetDb() {
+        lunchMenusService.deleteAll();
         votesService.deleteAll();
         peopleService.deleteAll();
         restaurantsService.deleteAll();
@@ -91,7 +98,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void getPersonThenStatus200andPersonConform() throws Exception {
+    public void getPersonThenStatus200AndPersonConform() throws Exception {
         Person person = peopleService.save(createTestGuestPerson());
 
 
@@ -105,7 +112,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void givenPersonWhenAddThenStatus201andPersonReturned() throws Exception {
+    public void givenPersonWhenAddThenStatus201AndPersonReturned() throws Exception {
         Person person = createTestGuestPerson();
 
         mockMvc.perform(post("/people")
@@ -129,7 +136,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void getAllRestaurantsThenStatus200andRestaurantConform() throws Exception {
+    public void getAllRestaurantsThenStatus200AndRestaurantConform() throws Exception {
         restaurantsService.save(createTestRestaurant());
 
         mockMvc.perform(get("/people/restaurants"))
@@ -139,13 +146,46 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void getAllLunchMenusFromRestaurantThenStatus200andRestaurantConform() throws Exception {
-        restaurantsService.save(createTestRestaurant());
+    public void getRestaurantByLunchMenuThenStatus200AndRestaurantConform() throws Exception {
+        Restaurant restaurant = restaurantsService.save(createTestRestaurant());
+        LunchMenu lunchMenu = lunchMenusService.save(createTestLunchMenu(restaurant));
 
-        mockMvc.perform(get("/people/restaurants"))
+
+        mockMvc.perform(get("/people/restaurant")
+                        .content(objectMapper.writeValueAsString(lunchMenu))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$.[0].name").value("Star"));
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value("Star"));
+    }
+
+
+    @Test
+    public void getLunchMenuFromRestaurantThenStatus200AndLunchMenuConform() throws Exception {
+        Restaurant restaurant = restaurantsService.save(createTestRestaurant());
+        lunchMenusService.save(createTestLunchMenu(restaurant));
+
+        mockMvc.perform(get("/people/lunch_menu")
+                        .content(objectMapper.writeValueAsString(restaurant))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.restaurant.id").isNumber())
+                .andExpect(jsonPath("$.restaurant.name").value("Star"));
+    }
+
+    @Test
+    public void getLunchMenusTodayThenStatus200AndLunchMenusConform() throws Exception {
+        Restaurant restaurantOne = restaurantsService.save(createTestRestaurantWithName("Star"));
+        Restaurant restaurantTwo = restaurantsService.save(createTestRestaurantWithName("Moon"));
+        lunchMenusService.save(createTestLunchMenu(restaurantOne));
+        lunchMenusService.save(createTestLunchMenu(restaurantTwo));
+
+        mockMvc.perform(get("/people/lunch_menus"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$.[0].id").isNumber())
+                .andExpect(jsonPath("$.[1].id").isNumber());
     }
 
     private Vote createTestVote(Person person) {
@@ -162,6 +202,7 @@ public class PersonControllerTest {
         Person person = new Person();
         person.setName("Tester");
         person.setRole("guest");
+
         return person;
     }
 
@@ -169,12 +210,26 @@ public class PersonControllerTest {
         Person person = new Person();
         person.setName("Senior tester");
         person.setRole("admin");
+
         return person;
     }
 
     private Restaurant createTestRestaurant() {
+        return createTestRestaurantWithName("Star");
+    }
+
+    private Restaurant createTestRestaurantWithName(String name) {
         Restaurant restaurant = new Restaurant();
-        restaurant.setName("Star");
+        restaurant.setName(name);
+
         return restaurant;
+    }
+
+    private LunchMenu createTestLunchMenu(Restaurant restaurant) {
+        LunchMenu lunchMenu = new LunchMenu();
+        lunchMenu.setRestaurant(restaurant);
+        lunchMenu.setDate(LocalDate.now());
+
+        return lunchMenu;
     }
 }

@@ -40,4 +40,13 @@ public class LunchMenusService {
     public LunchMenu save(LunchMenu lunchMenu) {
         return lunchMenusRepository.save(lunchMenu);
     }
+
+    public List<LunchMenu> getAllLunchMenusToday() {
+        return lunchMenusRepository.findAllByDateAfter(LocalDate.now().minusDays(1));
+    }
+
+    @Transactional
+    public void deleteAll() {
+        lunchMenusRepository.deleteAll();
+    }
 }

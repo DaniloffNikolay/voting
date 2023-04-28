@@ -32,7 +32,9 @@ public class AdminController {
     private final RestaurantsService restaurantsService;
 
     @Autowired
-    public AdminController(PeopleService peopleService, DishesService dishesService, LunchMenuItemsService lunchMenuItemsService, LunchMenusService lunchMenusService, RestaurantsService restaurantsService) {
+    public AdminController(PeopleService peopleService, DishesService dishesService,
+                           LunchMenuItemsService lunchMenuItemsService, LunchMenusService lunchMenusService,
+                           RestaurantsService restaurantsService) {
         this.peopleService = peopleService;
         this.dishesService = dishesService;
         this.lunchMenuItemsService = lunchMenuItemsService;
@@ -41,7 +43,8 @@ public class AdminController {
     }
 
     @PostMapping("/dish")
-    public ResponseEntity<Dish> setDish(@RequestBody Dish dish, BindingResult bindingResult) {
+    public ResponseEntity<Dish> setDish(@RequestBody Dish dish,
+                                        BindingResult bindingResult) {
         log.info("POST: /admin/dish");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -61,7 +64,8 @@ public class AdminController {
     }
 
     @PostMapping("/restaurant")
-    public ResponseEntity<Restaurant> setRestaurant(@RequestBody Restaurant restaurant, BindingResult bindingResult) {
+    public ResponseEntity<Restaurant> setRestaurant(@RequestBody Restaurant restaurant,
+                                                    BindingResult bindingResult) {
         log.info("POST: /admin/restaurant/");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -79,7 +83,8 @@ public class AdminController {
     }
 
     @PostMapping("/lunch_menu")
-    public ResponseEntity<LunchMenu> setLunchMenu(@RequestBody LunchMenu lunchMenu, BindingResult bindingResult) {
+    public ResponseEntity<LunchMenu> setLunchMenu(@RequestBody LunchMenu lunchMenu,
+                                                  BindingResult bindingResult) {
         log.info("POST: /admin/lunch_menu");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -98,7 +103,7 @@ public class AdminController {
 
     @PostMapping("/lunch_menu_item")
     public ResponseEntity<LunchMenuItem> setLunchMenuItem(@RequestBody LunchMenuItem lunchMenuItem,
-                                          BindingResult bindingResult) {
+                                                          BindingResult bindingResult) {
         log.info("POST: /admin/lunch_menu_item");
         if (bindingResult.hasErrors()) {
             //TODO

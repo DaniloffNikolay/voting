@@ -33,7 +33,8 @@ public class PersonController {
     private final LunchMenusService lunchMenusService;
 
     @Autowired
-    public PersonController(PeopleService peopleService, VotesService votesService, RestaurantsService restaurantsService, LunchMenusService lunchMenusService) {
+    public PersonController(PeopleService peopleService, VotesService votesService,
+                            RestaurantsService restaurantsService, LunchMenusService lunchMenusService) {
         this.peopleService = peopleService;
         this.votesService = votesService;
         this.restaurantsService = restaurantsService;
@@ -41,7 +42,8 @@ public class PersonController {
     }
 
     @PutMapping("/{personId}/vote")
-    public ResponseEntity<HttpStatus> vote(@PathVariable("personId") int personId, @RequestBody Vote vote, BindingResult bindingResult) {
+    public ResponseEntity<HttpStatus> vote(@PathVariable("personId") int personId, @RequestBody Vote vote,
+                                           BindingResult bindingResult) {
         log.info("PUT: /people/" + personId + "/vote");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -60,7 +62,7 @@ public class PersonController {
 
     @PostMapping
     public ResponseEntity<Person> savePerson(@RequestBody Person person,
-                             BindingResult bindingResult) {
+                                             BindingResult bindingResult) {
         log.info("POST: /people");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -73,7 +75,7 @@ public class PersonController {
 
     @DeleteMapping
     public ResponseEntity<Person> deletePerson(@RequestBody Person person,
-                             BindingResult bindingResult) {
+                                               BindingResult bindingResult) {
         log.info("DELETE: /people");
         if (bindingResult.hasErrors()) {
             //TODO
@@ -90,14 +92,32 @@ public class PersonController {
         return ResponseEntity.status(HttpStatus.OK).body(restaurantsService.findAll());
     }
 
+    @GetMapping("/restaurant")
+    public ResponseEntity<Restaurant> getRestaurantByLunchMenu(@RequestBody LunchMenu lunchMenu,
+                                                               BindingResult bindingResult) {
+        log.info("GET: /people/restaurant");
+        if (bindingResult.hasErrors()) {
+            //TODO
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(restaurantsService.findById(lunchMenu.getRestaurant().getId()).orElse(null));
+    }
+
     @GetMapping("/lunch_menu")
-    public ResponseEntity<LunchMenu> getAllLunchMenusFromRestaurant(@RequestBody Restaurant restaurant,
-                                                                          BindingResult bindingResult) {
+    public ResponseEntity<LunchMenu> getAllLunchMenuFromRestaurant(@RequestBody Restaurant restaurant,
+                                                                    BindingResult bindingResult) {
         log.info("GET: /people/lunch_menu");
         if (bindingResult.hasErrors()) {
             //TODO
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(lunchMenusService.findTodayLunchMenu(restaurant));
+    }
+
+    @GetMapping("/lunch_menus")
+    public ResponseEntity<List<LunchMenu>> getAllLunchMenusToday() {
+        log.info("GET: /people/lunch_menus");
+
+        return ResponseEntity.status(HttpStatus.OK).body(lunchMenusService.getAllLunchMenusToday());
     }
 }

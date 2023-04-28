@@ -5,8 +5,8 @@ INSERT INTO Person(name, role) VALUES ('Tom', 'guest');
 INSERT INTO Restaurant(name) VALUES ('Heaven');
 INSERT INTO Restaurant(name) VALUES ('Smile');
 
-INSERT INTO Lunch_menu(date, restaurant_id) VALUES ('2023-04-23', 1);
-INSERT INTO Lunch_menu(date, restaurant_id) VALUES ('2023-04-23', 2);
+INSERT INTO Lunch_menu(date, restaurant_id) VALUES ('2023-04-27', 1);
+INSERT INTO Lunch_menu(date, restaurant_id) VALUES ('2023-04-27', 2);
 INSERT INTO Lunch_menu(date, restaurant_id) VALUES (CURRENT_DATE, 1);
 INSERT INTO Lunch_menu(date, restaurant_id) VALUES (CURRENT_DATE, 2);
 
@@ -38,7 +38,7 @@ INSERT INTO Lunch_menu_item(dish_id, price, lunch_menu_id) VALUES (4, 349.99, 4)
 INSERT INTO Lunch_menu_item(dish_id, price, lunch_menu_id) VALUES (5, 649.99, 4);
 INSERT INTO Lunch_menu_item(dish_id, price, lunch_menu_id) VALUES (6, 649.99, 4);
 
-INSERT INTO Vote(date_time, person_id, restaurant_id) VALUES ('2023-04-23 08:56:21', 3, 1);
-INSERT INTO Vote(date_time, person_id, restaurant_id) VALUES ('2023-04-23 09:56:21', 2, 1);
+INSERT INTO Vote(date_time, person_id, restaurant_id) VALUES ('2023-04-27 08:56:21', 3, 1);
+INSERT INTO Vote(date_time, person_id, restaurant_id) VALUES ('2023-04-27 09:56:21', 2, 1);
 INSERT INTO Vote(date_time, person_id, restaurant_id) VALUES (now(), 2, 1);
 INSERT INTO Vote(date_time, person_id, restaurant_id) VALUES (now(), 3, 2);
