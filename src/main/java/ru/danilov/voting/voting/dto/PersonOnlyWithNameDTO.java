@@ -1,17 +1,14 @@
 package ru.danilov.voting.voting.dto;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
 /**
  * User: Nikolai Danilov
  * Date: 11.05.2023
  */
-public class PersonDTO {
+public class PersonOnlyWithNameDTO {
     @NotEmpty(message = "Name should not be empty")
     private String name;
-    @NotEmpty(message = "Password should not be empty")
-    private String password;
 
     public String getName() {
         return name;
@@ -19,13 +16,5 @@ public class PersonDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

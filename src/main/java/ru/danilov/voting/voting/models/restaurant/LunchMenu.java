@@ -3,6 +3,7 @@ package ru.danilov.voting.voting.models.restaurant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +21,7 @@ public class LunchMenu {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
-    @NotEmpty(message = "Restaurant should not be empty")
+    @NotNull(message = "Restaurant should not be null")
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "lunchMenu")

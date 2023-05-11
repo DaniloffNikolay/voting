@@ -1,5 +1,11 @@
-package ru.danilov.voting.voting.controllers;
+package ru.danilov.voting.voting;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.danilov.voting.voting.dto.PersonDTO;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.restaurant.Dish;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
@@ -8,13 +14,16 @@ import ru.danilov.voting.voting.models.restaurant.Restaurant;
 
 import java.time.LocalDate;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 public class Util {
 
 
     public static Person createTestGuestPerson() {
         Person person = new Person();
         person.setName("Tester");
-        person.setRole("guest");
+        person.setRole("ROLE_USER");
 
         return person;
     }
@@ -22,7 +31,7 @@ public class Util {
     public static Person createTestAdminPerson() {
         Person person = new Person();
         person.setName("Senior tester");
-        person.setRole("admin");
+        person.setRole("ROLE_ADMIN");
 
         return person;
     }
@@ -73,5 +82,27 @@ public class Util {
 
     public static Dish createTestDish() {
         return createTestDishWithName("Rice");
+    }
+
+    public static PersonDTO createTestLoginPersonDTO() {
+        PersonDTO personDTO = new PersonDTO();
+        personDTO.setName("Tom");
+        personDTO.setPassword("password");
+
+        return personDTO;
+    }
+
+    public static String saveNewPersonAndGetHimJWTToken(ObjectMapper objectMapper, MockMvc mockMvc) throws Exception {
+        PersonDTO personDTO = createTestLoginPersonDTO();
+        String jwtToken = mockMvc.perform(post("/auth/registration")
+                        .content(objectMapper.writeValueAsString(personDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString()
+                .replace("{\"jwt-token\":\"", "")
+                .replace("\"}", "");
+
+        return jwtToken;
     }
 }

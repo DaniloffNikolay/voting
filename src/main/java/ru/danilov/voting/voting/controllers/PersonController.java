@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.VotingApplication;
 import ru.danilov.voting.voting.dto.PersonDTO;
+import ru.danilov.voting.voting.dto.PersonOnlyWithNameDTO;
 import ru.danilov.voting.voting.dto.VoteDTO;
 import ru.danilov.voting.voting.dto.restaurant.LunchMenuDTO;
 import ru.danilov.voting.voting.dto.restaurant.RestaurantDTO;
@@ -61,6 +62,7 @@ public class PersonController {
 
         log.info("GET: /people");
         Person person = personDetails.getPerson();
+        person.setPassword(null);
 
         return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToPersonDTO(person));
     }
@@ -84,16 +86,21 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> savePerson(@RequestBody PersonDTO personDTO,
+    public ResponseEntity<PersonOnlyWithNameDTO> savePerson(@RequestBody PersonOnlyWithNameDTO personOnlyWithNameDTO,
                                              BindingResult bindingResult) {
         log.info("POST: /people");
         if (bindingResult.hasErrors()) {
             BindingResultUtil.getException(bindingResult);
         }
 
-        Person responsePerson = peopleService.save(modelMapperUtil.convertToPerson(personDTO));
+        Person person = modelMapperUtil.convertToPerson(personOnlyWithNameDTO);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        person.setPassword(personDetails.getPassword());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(modelMapperUtil.convertToPersonDTO(responsePerson));
+        Person responsePerson = peopleService.save(person);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(modelMapperUtil.convertToPersonOnlyWithNameDTO(responsePerson));
     }
 
     @DeleteMapping

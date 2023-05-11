@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.danilov.voting.voting.dto.PersonDTO;
+import ru.danilov.voting.voting.dto.PersonOnlyWithNameDTO;
 import ru.danilov.voting.voting.dto.VoteDTO;
 import ru.danilov.voting.voting.dto.restaurant.DishDTO;
 import ru.danilov.voting.voting.dto.restaurant.LunchMenuDTO;
@@ -43,6 +44,14 @@ public class ModelMapperUtil {
 
     public Person convertToPerson(PersonDTO personDTO) {
         return this.modelMapper.map(personDTO, Person.class);
+    }
+
+    public Person convertToPerson(PersonOnlyWithNameDTO personOnlyWithNameDTO) {
+        return this.modelMapper.map(personOnlyWithNameDTO, Person.class);
+    }
+
+    public PersonOnlyWithNameDTO convertToPersonOnlyWithNameDTO(Person person) {
+        return this.modelMapper.map(person, PersonOnlyWithNameDTO.class);
     }
 
     public RestaurantDTO convertToRestaurantDTO(Restaurant restaurant) {

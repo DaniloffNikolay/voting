@@ -8,6 +8,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.danilov.voting.voting.Util;
+import ru.danilov.voting.voting.dto.PersonDTO;
+import ru.danilov.voting.voting.dto.PersonOnlyWithNameDTO;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
@@ -26,17 +29,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.danilov.voting.voting.controllers.Util.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PersonControllerTest {
     private final ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
     private final PeopleService peopleService;
     private final RestaurantsService restaurantsService;
     private final LunchMenusService lunchMenusService;
     private final VotesService votesService;
-    private final MockMvc mockMvc;
+
 
     @Autowired
     public PersonControllerTest(ObjectMapper objectMapper, PeopleService peopleService,
@@ -58,8 +61,19 @@ public class PersonControllerTest {
     }
 
     @Test
+    public void getPersonWithJWTToken() throws Exception {
+        String jwtToken = Util.saveNewPersonAndGetHimJWTToken(objectMapper, mockMvc);
+
+        mockMvc.perform(get("/people")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Tom"));
+    }
+
+
+    @Test
     public void putVoteThenFirstStatus201ThenPutVoteAgainThenStatus208Or202() throws Exception {
-        Vote vote = createTestVote(peopleService.save(createTestGuestPerson()));
+        Vote vote = createTestVote(peopleService.save(Util.createTestGuestPerson()));
 
         mockMvc.perform(put("/people/" + vote.getPerson().getId() + "/vote")
                         .content(objectMapper.writeValueAsString(vote))
@@ -88,7 +102,7 @@ public class PersonControllerTest {
 
     @Test
     public void putVoteWhenPersonHasRoleAdminThenStatus403() throws Exception {
-        Vote vote = createTestVote(peopleService.save(createTestAdminPerson()));
+        Vote vote = createTestVote(peopleService.save(Util.createTestAdminPerson()));
 
         mockMvc.perform(put("/people/" + vote.getPerson().getId() + "/vote")
                         .content(objectMapper.writeValueAsString(vote))
@@ -97,96 +111,57 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void getPersonThenStatus200AndPersonConform() throws Exception {
-        Person person = peopleService.save(createTestGuestPerson());
-
-
-        mockMvc.perform(get("/people/" + person.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value("Tester"))
-                .andExpect(jsonPath("$.role").value("guest"));
-    }
-
-    @Test
     public void givenPersonWhenAddThenStatus201AndPersonReturned() throws Exception {
-        Person person = createTestGuestPerson();
+        PersonOnlyWithNameDTO personOnlyWithNameDTO = new PersonOnlyWithNameDTO();
+        personOnlyWithNameDTO.setName("Som");
+        String jwtToken = Util.saveNewPersonAndGetHimJWTToken(objectMapper, mockMvc);
 
         mockMvc.perform(post("/people")
-                        .content(objectMapper.writeValueAsString(person))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .content(objectMapper.writeValueAsString(personOnlyWithNameDTO))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value("Tester"))
-                .andExpect(jsonPath("$.role").value("guest"));
+                .andExpect(jsonPath("$.name").value("Som"));
     }
 
     @Test
     public void deletePersonThenStatus204() throws Exception {
-        Person person = createTestGuestPerson();
-        peopleService.save(person);
+        String jwtToken = Util.saveNewPersonAndGetHimJWTToken(objectMapper, mockMvc);
 
         mockMvc.perform(delete("/people")
-                        .content(objectMapper.writeValueAsString(person))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     public void getAllRestaurantsThenStatus200AndRestaurantConform() throws Exception {
-        restaurantsService.save(createTestRestaurant());
+        restaurantsService.save(Util.createTestRestaurant());
+        String jwtToken = Util.saveNewPersonAndGetHimJWTToken(objectMapper, mockMvc);
 
-        mockMvc.perform(get("/people/restaurants"))
+        mockMvc.perform(get("/people/restaurants")
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$.[0].name").value("Star"));
     }
 
     @Test
-    public void getRestaurantByLunchMenuThenStatus200AndRestaurantConform() throws Exception {
-        Restaurant restaurant = restaurantsService.save(createTestRestaurant());
-        LunchMenu lunchMenu = lunchMenusService.save(createTestLunchMenu(restaurant));
-
-
-        mockMvc.perform(get("/people/restaurant")
-                        .content(objectMapper.writeValueAsString(lunchMenu))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value("Star"));
-    }
-
-
-    @Test
-    public void getLunchMenuFromRestaurantThenStatus200AndLunchMenuConform() throws Exception {
-        Restaurant restaurant = restaurantsService.save(createTestRestaurant());
-        lunchMenusService.save(createTestLunchMenu(restaurant));
-
-        mockMvc.perform(get("/people/lunch_menu")
-                        .content(objectMapper.writeValueAsString(restaurant))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.restaurant.id").isNumber())
-                .andExpect(jsonPath("$.restaurant.name").value("Star"));
-    }
-
-    @Test
     public void getLunchMenusTodayThenStatus200AndLunchMenusConform() throws Exception {
-        Restaurant restaurantOne = restaurantsService.save(createTestRestaurant());
-        Restaurant restaurantTwo = restaurantsService.save(createTestRestaurantWithName("Moon"));
-        lunchMenusService.save(createTestLunchMenu(restaurantOne));
-        lunchMenusService.save(createTestLunchMenu(restaurantTwo));
+        Restaurant restaurantOne = restaurantsService.save(Util.createTestRestaurant());
+        Restaurant restaurantTwo = restaurantsService.save(Util.createTestRestaurantWithName("Moon"));
+        lunchMenusService.save(Util.createTestLunchMenu(restaurantOne));
+        lunchMenusService.save(Util.createTestLunchMenu(restaurantTwo));
 
-        mockMvc.perform(get("/people/lunch_menus"))
+        String jwtToken = Util.saveNewPersonAndGetHimJWTToken(objectMapper, mockMvc);
+
+        mockMvc.perform(get("/people/lunch_menus")
+                .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[1].id").isNumber());
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     private Vote createTestVote(Person person) {
-        Restaurant restaurant = createTestRestaurant();
+        Restaurant restaurant = Util.createTestRestaurant();
         Restaurant restaurantWithId = restaurantsService.save(restaurant);
         Vote vote = new Vote();
         vote.setPerson(person);
