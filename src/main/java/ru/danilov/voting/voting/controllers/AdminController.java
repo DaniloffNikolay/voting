@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.VotingApplication;
+import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.restaurant.Dish;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
 import ru.danilov.voting.voting.models.restaurant.LunchMenuItem;
@@ -18,7 +19,9 @@ import ru.danilov.voting.voting.services.restaurant.DishesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenuItemsService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
-import ru.danilov.voting.voting.util.DishValidator;
+import ru.danilov.voting.voting.services.users.PeopleService;
+import ru.danilov.voting.voting.util.BindingResultUtil;
+import ru.danilov.voting.voting.util.validators.DishValidator;
 
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class AdminController {
 
     private static final Logger log = LoggerFactory.getLogger(VotingApplication.class);
 
+    private final PeopleService peopleService;
     private final DishesService dishesService;
     private final LunchMenuItemsService lunchMenuItemsService;
     private final LunchMenusService lunchMenusService;
@@ -36,13 +40,35 @@ public class AdminController {
     private final DishValidator dishValidator;
 
     @Autowired
-    public AdminController(DishesService dishesService, LunchMenuItemsService lunchMenuItemsService,
+    public AdminController(PeopleService peopleService, DishesService dishesService, LunchMenuItemsService lunchMenuItemsService,
                            LunchMenusService lunchMenusService, RestaurantsService restaurantsService, DishValidator dishValidator) {
+        this.peopleService = peopleService;
         this.dishesService = dishesService;
         this.lunchMenuItemsService = lunchMenuItemsService;
         this.lunchMenusService = lunchMenusService;
         this.restaurantsService = restaurantsService;
         this.dishValidator = dishValidator;
+    }
+
+    @PutMapping("/set_role_admin")
+    public ResponseEntity<HttpStatus> setRoleAdmin(@RequestBody @Valid Person person,
+                                                   BindingResult bindingResult) {
+        log.info("POST: /admin/dish");
+
+        if (bindingResult.hasErrors()) {
+            BindingResultUtil.getException(bindingResult);
+        }
+
+        String role = person.getRole();
+
+        if (role.equals("ROLE_ADMIN")) {
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).build();
+        }
+
+        person.setRole("ROLE_ADMIN");
+        peopleService.save(person);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
     @PostMapping("/dish")
@@ -59,7 +85,7 @@ public class AdminController {
                 log.info("Dish who has this name is already taken, return ");
                 return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(dishesService.findFirstByNameIs(dish).orElse(null));
             } else {
-                //TODO
+                BindingResultUtil.getException(bindingResult);
             }
         }
 
@@ -86,7 +112,7 @@ public class AdminController {
                                                     BindingResult bindingResult) {
         log.info("POST: /admin/restaurant/");
         if (bindingResult.hasErrors()) {
-            //TODO
+            BindingResultUtil.getException(bindingResult);
         }
 
         Restaurant responseRestaurant = restaurantsService.save(restaurant);
@@ -112,7 +138,7 @@ public class AdminController {
                                                   BindingResult bindingResult) {
         log.info("POST: /admin/lunch_menu");
         if (bindingResult.hasErrors()) {
-            //TODO
+            BindingResultUtil.getException(bindingResult);
         }
 
         LunchMenu responseLunchMenu = lunchMenusService.save(lunchMenu);
@@ -131,7 +157,7 @@ public class AdminController {
                                                           BindingResult bindingResult) {
         log.info("POST: /admin/lunch_menu_item");
         if (bindingResult.hasErrors()) {
-            //TODO
+            BindingResultUtil.getException(bindingResult);
         }
 
         LunchMenuItem responseLunchMenuItem = lunchMenuItemsService.save(lunchMenuItem);

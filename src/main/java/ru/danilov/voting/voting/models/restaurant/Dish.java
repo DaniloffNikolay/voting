@@ -1,6 +1,7 @@
 package ru.danilov.voting.voting.models.restaurant;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -12,7 +13,7 @@ public class Dish {
     private int id;
 
     @Column(name = "name")
-    @NotNull
+    @NotEmpty(message = "Dish name should not be empty")
     private String name;
 
     public Dish(int id, String name) {

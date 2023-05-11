@@ -1,6 +1,9 @@
 package ru.danilov.voting.voting.models;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
 
@@ -23,6 +26,7 @@ public class Vote {
 
     @OneToOne
     @JoinColumn(name = "restaurant_id")
+    @NotNull(message = "Restaurant should not be null")
     private Restaurant restaurant;
 
     public Vote() {

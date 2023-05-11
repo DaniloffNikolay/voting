@@ -2,6 +2,7 @@ package ru.danilov.voting.voting.models.restaurant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class Restaurant {
     private int id;
 
     @Column(name = "name")
+    @NotEmpty(message = "Restaurant name should not be empty")
     private String name;
 
     @JsonIgnore

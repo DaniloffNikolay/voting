@@ -1,9 +1,7 @@
 package ru.danilov.voting.voting.models;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "Person")
@@ -14,9 +12,11 @@ public class Person {
     private int id;
 
     @Column(name = "name")
+    @NotEmpty(message = "Name should not be empty")
     private String name;
 
     @Column(name = "password")
+    @NotEmpty(message = "Password should not be empty")
     private String password;
 
     @Column(name = "role")

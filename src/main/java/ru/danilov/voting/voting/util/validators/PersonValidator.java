@@ -1,4 +1,4 @@
-package ru.danilov.voting.voting.util;
+package ru.danilov.voting.voting.util.validators;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

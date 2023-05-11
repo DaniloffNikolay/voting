@@ -2,6 +2,7 @@ package ru.danilov.voting.voting.models.restaurant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,10 +20,10 @@ public class LunchMenu {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
+    @NotEmpty(message = "Restaurant should not be empty")
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "lunchMenu")
-    @JsonIgnore
     private List<LunchMenuItem> lunchMenuItems;
 
     public LunchMenu() {

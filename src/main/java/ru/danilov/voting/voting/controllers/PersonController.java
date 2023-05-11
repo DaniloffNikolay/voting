@@ -10,17 +10,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.VotingApplication;
+import ru.danilov.voting.voting.dto.PersonDTO;
+import ru.danilov.voting.voting.dto.VoteDTO;
+import ru.danilov.voting.voting.dto.restaurant.LunchMenuDTO;
+import ru.danilov.voting.voting.dto.restaurant.RestaurantDTO;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
-import ru.danilov.voting.voting.models.restaurant.LunchMenu;
-import ru.danilov.voting.voting.models.restaurant.Restaurant;
 import ru.danilov.voting.voting.security.PersonDetails;
 import ru.danilov.voting.voting.services.users.PeopleService;
 import ru.danilov.voting.voting.services.VotesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
+import ru.danilov.voting.voting.util.BindingResultUtil;
+import ru.danilov.voting.voting.util.ErrorResponse;
+import ru.danilov.voting.voting.util.ModelMapperUtil;
+import ru.danilov.voting.voting.util.exceptions.PersonNotFoundException;
 import ru.danilov.voting.voting.util.VoteUtil;
+import ru.danilov.voting.voting.util.exceptions.ValidationFailedException;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,105 +42,98 @@ public class PersonController {
     private final VotesService votesService;
     private final RestaurantsService restaurantsService;
     private final LunchMenusService lunchMenusService;
+    private final ModelMapperUtil modelMapperUtil;
 
     @Autowired
     public PersonController(PeopleService peopleService, VotesService votesService,
-                            RestaurantsService restaurantsService, LunchMenusService lunchMenusService) {
+                            RestaurantsService restaurantsService, LunchMenusService lunchMenusService, ModelMapperUtil modelMapperUtil) {
         this.peopleService = peopleService;
         this.votesService = votesService;
         this.restaurantsService = restaurantsService;
         this.lunchMenusService = lunchMenusService;
+        this.modelMapperUtil = modelMapperUtil;
     }
 
     @GetMapping
-    public ResponseEntity<Person> showUserInfo() {
+    public ResponseEntity<PersonDTO> showUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
 
         log.info("GET: /people");
         Person person = personDetails.getPerson();
-        log.info(person.toString());
 
-        return ResponseEntity.status(HttpStatus.OK).body(person);
+        return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToPersonDTO(person));
     }
 
-    @PutMapping("/{personId}/vote")
-    public ResponseEntity<HttpStatus> vote(@PathVariable("personId") int personId, @RequestBody Vote vote,
+    @PostMapping("/vote")
+    public ResponseEntity<HttpStatus> vote(@RequestBody @Valid VoteDTO voteDTO,
                                            BindingResult bindingResult) {
-        log.info("PUT: /people/" + personId + "/vote");
+        log.info("PUT: /people/vote");
+
         if (bindingResult.hasErrors()) {
-            //TODO
+            BindingResultUtil.getException(bindingResult);
         }
-        return VoteUtil.checkVote(peopleService.findById(personId), Optional.of(vote.getRestaurant()), votesService);
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Person> getPerson(@PathVariable("id") int id) {
-        log.info("GET: /people/" + id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
 
-        Person responsePerson = peopleService.findById(id).orElse(null);
+        Vote vote = modelMapperUtil.convertToVote(voteDTO);
+        vote.setPerson(personDetails.getPerson());
 
-        return ResponseEntity.status(HttpStatus.OK).body(responsePerson);
+        return VoteUtil.checkVote(peopleService.findById(personDetails.getPerson().getId()), Optional.of(vote.getRestaurant()), votesService);
     }
 
     @PostMapping
-    public ResponseEntity<Person> savePerson(@RequestBody Person person,
+    public ResponseEntity<PersonDTO> savePerson(@RequestBody PersonDTO personDTO,
                                              BindingResult bindingResult) {
         log.info("POST: /people");
         if (bindingResult.hasErrors()) {
-            //TODO
+            BindingResultUtil.getException(bindingResult);
         }
 
-        Person responsePerson = peopleService.save(person);
+        Person responsePerson = peopleService.save(modelMapperUtil.convertToPerson(personDTO));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(responsePerson);
+        return ResponseEntity.status(HttpStatus.CREATED).body(modelMapperUtil.convertToPersonDTO(responsePerson));
     }
 
     @DeleteMapping
-    public ResponseEntity<Person> deletePerson(@RequestBody Person person,
-                                               BindingResult bindingResult) {
+    public ResponseEntity<HttpStatus> deletePerson() {
         log.info("DELETE: /people");
-        if (bindingResult.hasErrors()) {
-            //TODO
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
 
-        peopleService.delete(person);
+        peopleService.delete(personDetails.getPerson());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/restaurants")
-    public ResponseEntity<List<Restaurant>> getAllRestaurant() {
+    public ResponseEntity<List<RestaurantDTO>> getAllRestaurant() {
         log.info("GET: /people/restaurants");
-        return ResponseEntity.status(HttpStatus.OK).body(restaurantsService.findAll());
-    }
 
-    @GetMapping("/restaurant")
-    public ResponseEntity<Restaurant> getRestaurantByLunchMenu(@RequestBody LunchMenu lunchMenu,
-                                                               BindingResult bindingResult) {
-        log.info("GET: /people/restaurant");
-        if (bindingResult.hasErrors()) {
-            //TODO
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(restaurantsService.findById(lunchMenu.getRestaurant().getId()).orElse(null));
-    }
-
-    @GetMapping("/lunch_menu")
-    public ResponseEntity<LunchMenu> getAllLunchMenuFromRestaurant(@RequestBody Restaurant restaurant,
-                                                                    BindingResult bindingResult) {
-        log.info("GET: /people/lunch_menu");
-        if (bindingResult.hasErrors()) {
-            //TODO
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(lunchMenusService.findTodayLunchMenu(restaurant));
+        return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToListRestaurantDTO(restaurantsService.findAll()));
     }
 
     @GetMapping("/lunch_menus")
-    public ResponseEntity<List<LunchMenu>> getAllLunchMenusToday() {
+    public ResponseEntity<List<LunchMenuDTO>> getAllLunchMenusToday() {
         log.info("GET: /people/lunch_menus");
 
-        return ResponseEntity.status(HttpStatus.OK).body(lunchMenusService.getAllLunchMenusToday());
+        return ResponseEntity.status(HttpStatus.OK).body(modelMapperUtil.convertToListLunchMenuDTO(lunchMenusService.getAllLunchMenusToday()));
     }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(PersonNotFoundException e) {
+        ErrorResponse response = new ErrorResponse("Person with this id wasn't found!");
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(ValidationFailedException e) {
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
 }

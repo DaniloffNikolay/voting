@@ -1,7 +1,9 @@
 package ru.danilov.voting.voting.models.restaurant;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "Lunch_menu_item")
@@ -12,6 +14,7 @@ public class LunchMenuItem {
     private int id;
 
     @ManyToOne
+    @NotEmpty(message = "Dish should not be empty")
     private Dish dish;
 
     @Column(name = "price")
@@ -19,6 +22,8 @@ public class LunchMenuItem {
 
     @ManyToOne
     @JoinColumn(name = "lunch_menu_id")
+    @NotEmpty(message = "LunchMenu should not be empty")
+    @JsonIgnore
     private LunchMenu lunchMenu;
 
     public LunchMenuItem() {

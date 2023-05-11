@@ -12,7 +12,7 @@ import ru.danilov.voting.voting.dto.PersonDTO;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.security.JWTUtil;
 import ru.danilov.voting.voting.services.users.RegistrationService;
-import ru.danilov.voting.voting.util.PersonValidator;
+import ru.danilov.voting.voting.util.validators.PersonValidator;
 
 import javax.validation.Valid;
 import java.util.Map;

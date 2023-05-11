@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.repositories.PeopleRepository;
+import ru.danilov.voting.voting.util.exceptions.PersonNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,8 +24,8 @@ public class PeopleService {
         return peopleRepository.findAll();
     }
 
-    public Optional<Person> findById(int id) {
-        return peopleRepository.findById(id);
+    public Person findById(int id) {
+        return peopleRepository.findById(id).orElseThrow(PersonNotFoundException::new);
     }
 
     @Transactional

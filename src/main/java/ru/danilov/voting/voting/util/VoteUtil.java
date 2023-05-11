@@ -19,9 +19,9 @@ public class VoteUtil {
 
     private static final Logger log = LoggerFactory.getLogger(VotingApplication.class);
 
-    private static Vote setVote(Optional<Person> person, Optional<Restaurant> restaurant) {
-        if (person.isPresent() && person.get().getRole().equals("guest") && restaurant.isPresent()) {
-            return new Vote(LocalDateTime.now(), person.get(), restaurant.get());
+    private static Vote setVote(Person person, Optional<Restaurant> restaurant) {
+        if (person != null && restaurant.isPresent()) {
+            return new Vote(LocalDateTime.now(), person, restaurant.get());
         }
         return null;
     }
@@ -34,7 +34,7 @@ public class VoteUtil {
         return false;
     }
 
-    public static ResponseEntity<HttpStatus> checkVote(Optional<Person> person, Optional<Restaurant> restaurant, VotesService votesService) {
+    public static ResponseEntity<HttpStatus> checkVote(Person person, Optional<Restaurant> restaurant, VotesService votesService) {
         Vote vote = VoteUtil.setVote(person, restaurant);
         if (vote != null) {
             Optional<Vote> checkVote = votesService.findAllTodayVotesWhereId(vote.getPerson());
