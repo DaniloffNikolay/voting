@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.danilov.voting.voting.VotingApplication;
@@ -12,7 +14,8 @@ import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
-import ru.danilov.voting.voting.services.PeopleService;
+import ru.danilov.voting.voting.security.PersonDetails;
+import ru.danilov.voting.voting.services.users.PeopleService;
 import ru.danilov.voting.voting.services.VotesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;
@@ -39,6 +42,18 @@ public class PersonController {
         this.votesService = votesService;
         this.restaurantsService = restaurantsService;
         this.lunchMenusService = lunchMenusService;
+    }
+
+    @GetMapping
+    public ResponseEntity<Person> showUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+
+        log.info("GET: /people");
+        Person person = personDetails.getPerson();
+        log.info(person.toString());
+
+        return ResponseEntity.status(HttpStatus.OK).body(person);
     }
 
     @PutMapping("/{personId}/vote")

@@ -1,4 +1,4 @@
-package ru.danilov.voting.voting.services;
+package ru.danilov.voting.voting.services.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

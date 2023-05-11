@@ -1,7 +1,7 @@
 package ru.danilov.voting.voting.models.restaurant;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Dish")

@@ -1,6 +1,6 @@
-INSERT INTO Person(name, role) VALUES ('admin', 'admin');
-INSERT INTO Person(name, role) VALUES ('Bob', 'guest');
-INSERT INTO Person(name, role) VALUES ('Tom', 'guest');
+INSERT INTO person(name, password, role) VALUES ('admin', '$2a$10$WL3yfVMAm.0QRKYPO.Ihp.Y3iSUb/bklFzCtRjOG6BqvUsNp.yFW2', 'ROLE_ADMIN');
+INSERT INTO Person(name, password, role) VALUES ('Bob', '$2a$10$oeAbn856Zne9kXbjYHfop.3z3tzvnkU1844R0mZdlmy0DN.4w9NYO', 'ROLE_USER');
+INSERT INTO Person(name, password, role) VALUES ('Tom', '$2a$10$oeAbn856Zne9kXbjYHfop.3z3tzvnkU1844R0mZdlmy0DN.4w9NYO','ROLE_USER');
 
 INSERT INTO Restaurant(name) VALUES ('Heaven');
 INSERT INTO Restaurant(name) VALUES ('Smile');

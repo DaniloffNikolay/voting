@@ -1,6 +1,6 @@
 package ru.danilov.voting.voting.models;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
 

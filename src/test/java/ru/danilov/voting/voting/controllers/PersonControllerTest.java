@@ -12,7 +12,7 @@ import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
 import ru.danilov.voting.voting.models.restaurant.Restaurant;
-import ru.danilov.voting.voting.services.PeopleService;
+import ru.danilov.voting.voting.services.users.PeopleService;
 import ru.danilov.voting.voting.services.VotesService;
 import ru.danilov.voting.voting.services.restaurant.LunchMenusService;
 import ru.danilov.voting.voting.services.restaurant.RestaurantsService;

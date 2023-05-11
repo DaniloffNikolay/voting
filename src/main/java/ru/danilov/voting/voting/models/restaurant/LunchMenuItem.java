@@ -1,7 +1,7 @@
 package ru.danilov.voting.voting.models.restaurant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "Lunch_menu_item")

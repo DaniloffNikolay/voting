@@ -1,6 +1,9 @@
 package ru.danilov.voting.voting.models;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "Person")
@@ -13,15 +16,19 @@ public class Person {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "password")
+    private String password;
+
     @Column(name = "role")
     private String role;
 
     public Person() {
     }
 
-    public Person(int id, String name, String role) {
+    public Person(int id, String name, String password, String role) {
         this.id = id;
         this.name = name;
+        this.password = password;
         this.role = role;
     }
 
@@ -39,6 +46,14 @@ public class Person {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getRole() {
