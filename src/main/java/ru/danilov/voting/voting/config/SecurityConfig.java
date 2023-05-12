@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,6 +24,26 @@ import ru.danilov.voting.voting.services.users.PersonDetailsService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final PersonDetailsService personDetailsService;
     private final JWTFilter jwtFilter;
+
+    private static final String[] AUTH_WHITELIST = {
+            //auth
+            "/auth/login",
+            "/auth/registration",
+            //error
+            "/error",
+            // -- Swagger UI v2
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+            // other public endpoints of your API may be appended to this array
+    };
 
     @Autowired
     public SecurityConfig(PersonDetailsService personDetailsService, JWTFilter jwtFilter) {
@@ -50,7 +71,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/admin/lunch_menu_item",
                         "/admin/lunch_menu_item/{id}")
                 .hasRole("ADMIN")
-                .antMatchers("/auth/login", "/auth/registration", "/error").permitAll()
+                //.antMatchers("/auth/login", "/auth/registration", "/error").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().hasAnyRole("USER")
                 .and()
                 .sessionManagement()
