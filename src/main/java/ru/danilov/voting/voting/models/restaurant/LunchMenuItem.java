@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Lunch_menu_item")
@@ -14,7 +15,7 @@ public class LunchMenuItem {
     private int id;
 
     @ManyToOne
-    @NotEmpty(message = "Dish should not be empty")
+    @NotNull(message = "Dish should not be null")
     private Dish dish;
 
     @Column(name = "price")
@@ -22,7 +23,7 @@ public class LunchMenuItem {
 
     @ManyToOne
     @JoinColumn(name = "lunch_menu_id")
-    @NotEmpty(message = "LunchMenu should not be empty")
+    @NotNull(message = "LunchMenu should not be null")
     @JsonIgnore
     private LunchMenu lunchMenu;
 

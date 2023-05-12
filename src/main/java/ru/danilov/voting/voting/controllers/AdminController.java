@@ -50,15 +50,29 @@ public class AdminController {
         this.dishValidator = dishValidator;
     }
 
-    @PutMapping("/set_role_admin")
-    public ResponseEntity<HttpStatus> setRoleAdmin(@RequestBody @Valid Person person,
-                                                   BindingResult bindingResult) {
-        log.info("POST: /admin/dish");
+    @GetMapping("/person/{id}")
+    public ResponseEntity<Person> getPerson(@PathVariable("id") int id) {
+        log.info("POST: /person/" + id);
 
-        if (bindingResult.hasErrors()) {
-            BindingResultUtil.getException(bindingResult);
-        }
+        Person person = peopleService.findById(id);
 
+        return ResponseEntity.status(HttpStatus.OK).body(person);
+    }
+
+    @GetMapping("/people")
+    public ResponseEntity<List<Person>> getAllPeople() {
+        log.info("POST: /people");
+
+        List<Person> people = peopleService.findAll();
+
+        return ResponseEntity.status(HttpStatus.OK).body(people);
+    }
+
+    @PutMapping("/set_role_admin/{id}")
+    public ResponseEntity<HttpStatus> setRoleAdmin(@PathVariable("id") int id) {
+        log.info("PUT: /admin/set_role_admin/" + id);
+
+        Person person = peopleService.findById(id);
         String role = person.getRole();
 
         if (role.equals("ROLE_ADMIN")) {
@@ -152,21 +166,22 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(responseLunchMenu);
     }
 
-    @PostMapping("/lunch_menu_item")
-    public ResponseEntity<LunchMenuItem> setLunchMenuItem(@RequestBody LunchMenuItem lunchMenuItem,
+    @PostMapping("/lunch_menu_item/{id}")
+    public ResponseEntity<LunchMenuItem> setLunchMenuItem(@PathVariable("id") int id, @RequestBody LunchMenuItem lunchMenuItem,
                                                           BindingResult bindingResult) {
         log.info("POST: /admin/lunch_menu_item");
         if (bindingResult.hasErrors()) {
             BindingResultUtil.getException(bindingResult);
         }
 
+        lunchMenuItem.setLunchMenu(lunchMenusService.findById(id).orElse(null));
         LunchMenuItem responseLunchMenuItem = lunchMenuItemsService.save(lunchMenuItem);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseLunchMenuItem);
     }
 
     @GetMapping("/lunch_menu_item/{id}")
     public ResponseEntity<LunchMenuItem> getLunchMenuItem(@PathVariable("id") int id) {
-        log.info("POST: /admin/lunch_menu_item/" + id);
+        log.info("GET: /admin/lunch_menu_item/" + id);
         LunchMenuItem responseLunchMenuItem = lunchMenuItemsService.findById(id).orElse(null);
         return ResponseEntity.status(HttpStatus.OK).body(responseLunchMenuItem);
     }

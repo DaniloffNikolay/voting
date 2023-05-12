@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.danilov.voting.voting.Util;
 import ru.danilov.voting.voting.dto.PersonDTO;
 import ru.danilov.voting.voting.dto.PersonOnlyWithNameDTO;
+import ru.danilov.voting.voting.dto.VoteDTO;
 import ru.danilov.voting.voting.models.Person;
 import ru.danilov.voting.voting.models.Vote;
 import ru.danilov.voting.voting.models.restaurant.LunchMenu;
@@ -73,28 +74,35 @@ public class PersonControllerTest {
 
     @Test
     public void putVoteThenFirstStatus201ThenPutVoteAgainThenStatus208Or202() throws Exception {
-        Vote vote = createTestVote(peopleService.save(Util.createTestGuestPerson()));
+        String jwtToken = Util.saveNewPersonAndGetHimJWTToken(objectMapper, mockMvc);
 
-        mockMvc.perform(put("/people/" + vote.getPerson().getId() + "/vote")
-                        .content(objectMapper.writeValueAsString(vote))
+        Restaurant restaurant = Util.createTestRestaurant();
+        Restaurant restaurantWithId = restaurantsService.save(restaurant);
+
+        VoteDTO voteDTO = Util.createTestVoteDTO(restaurantWithId);
+
+        mockMvc.perform(post("/people/vote")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .content(objectMapper.writeValueAsString(voteDTO))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        Restaurant restaurant = new Restaurant();
+        restaurant = new Restaurant();
         restaurant.setName("Moon");
-        Restaurant restaurantWithId = restaurantsService.save(restaurant);
+        restaurantWithId = restaurantsService.save(restaurant);
 
-        vote.setId(0);
-        vote.setRestaurant(restaurantWithId);
+        voteDTO = Util.createTestVoteDTO(restaurantWithId);
 
         if (LocalTime.now().isAfter(LocalTime.of(11, 0))) {
-            mockMvc.perform(put("/people/" + vote.getPerson().getId() + "/vote")
-                            .content(objectMapper.writeValueAsString(vote))
+            mockMvc.perform(post("/people/vote")
+                            .header("Authorization", "Bearer " + jwtToken)
+                            .content(objectMapper.writeValueAsString(voteDTO))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isAlreadyReported());
         } else {
-            mockMvc.perform(put("/people/" + vote.getPerson().getId() + "/vote")
-                            .content(objectMapper.writeValueAsString(vote))
+            mockMvc.perform(post("/people/vote")
+                            .header("Authorization", "Bearer " + jwtToken)
+                            .content(objectMapper.writeValueAsString(voteDTO))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isAccepted());
         }
@@ -102,10 +110,17 @@ public class PersonControllerTest {
 
     @Test
     public void putVoteWhenPersonHasRoleAdminThenStatus403() throws Exception {
-        Vote vote = createTestVote(peopleService.save(Util.createTestAdminPerson()));
+        peopleService.save(Util.createTestAdmin());
+        String jwtToken = Util.getAdminJWTToken(objectMapper, mockMvc);
 
-        mockMvc.perform(put("/people/" + vote.getPerson().getId() + "/vote")
-                        .content(objectMapper.writeValueAsString(vote))
+        Restaurant restaurant = Util.createTestRestaurant();
+        Restaurant restaurantWithId = restaurantsService.save(restaurant);
+
+        VoteDTO voteDTO = Util.createTestVoteDTO(restaurantWithId);
+
+        mockMvc.perform(post("/people/vote")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .content(objectMapper.writeValueAsString(voteDTO))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -159,6 +174,8 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
     }
+
+
 
     private Vote createTestVote(Person person) {
         Restaurant restaurant = Util.createTestRestaurant();
