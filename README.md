@@ -29,5 +29,22 @@ The project works at: http://2ke.ru
 
 -----------------------------
 
+API Documentation:
+http://2ke.ru/swagger-ui.html
 
+or:
+http://localhost:8080/swagger-ui.html
+if you run this application on your computer. 
 
+-----------------------------
+
+Для тестов:
+-----------------------------
+admin:
+* login: admin
+* password: hello
+-----------------------------
+user:
+* login: Tom
+* password: password
+-----------------------------
