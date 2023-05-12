@@ -38,7 +38,7 @@ if you run this application on your computer.
 
 -----------------------------
 
-Для тестов:
+For tests:
 -----------------------------
 admin:
 * login: admin
